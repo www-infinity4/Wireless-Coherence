@@ -6,44 +6,60 @@
   <title>Infinity Resonance Ratio Calculator</title>
   <style>
     :root {
-      --bg-dark: #0a0f1d;
-      --panel-bg: #131c33;
-      --accent-blue: #00d2ff;
-      --accent-orange: #ff7b00;
-      --text-light: #e2e8f0;
-      --border-color: #23355a;
+      --bg-dark: #070b14;
+      --panel-bg: rgba(17, 25, 44, 0.72);
+      --surface-dark: #0d1527;
+      --accent-blue: #70d6ff;
+      --accent-gold: #d9b26f;
+      --text-light: #e6edf9;
+      --muted-text: #9fb0cc;
+      --border-color: rgba(159, 176, 204, 0.22);
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-dark);
+      background:
+        radial-gradient(1200px 600px at 10% -20%, rgba(112, 214, 255, 0.14), transparent 60%),
+        radial-gradient(1000px 550px at 90% -10%, rgba(217, 178, 111, 0.12), transparent 55%),
+        var(--bg-dark);
       color: var(--text-light);
       margin: 0;
-      padding: 20px;
+      padding: 28px;
       line-height: 1.5;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1080px;
       margin: 0 auto;
     }
 
     header {
       text-align: center;
-      margin-bottom: 30px;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 20px;
+      margin-bottom: 34px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 24px;
     }
 
-    h1 { color: var(--accent-blue); margin: 0 0 10px 0; font-size: 2.2rem; }
-    p.subtitle { color: #8a99ad; margin: 0; font-size: 1.1rem; }
+    h1 {
+      color: var(--text-light);
+      margin: 0 0 10px 0;
+      font-size: 2.25rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+    }
+    p.subtitle {
+      color: var(--muted-text);
+      margin: 0;
+      font-size: 1.02rem;
+    }
 
     .input-panel {
-      background-color: var(--panel-bg);
+      background: linear-gradient(180deg, rgba(30, 44, 74, 0.5), rgba(17, 25, 44, 0.5));
+      backdrop-filter: blur(6px);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 25px;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 28px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
@@ -55,18 +71,25 @@
       font-weight: bold;
       margin-bottom: 8px;
       color: var(--accent-blue);
-      font-size: 0.9rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.09em;
     }
 
     select, input {
-      background-color: var(--bg-dark);
+      background-color: var(--surface-dark);
       border: 1px solid var(--border-color);
-      color: white;
+      color: var(--text-light);
       padding: 10px;
-      border-radius: 4px;
-      font-size: 1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: rgba(112, 214, 255, 0.62);
+      box-shadow: 0 0 0 3px rgba(112, 214, 255, 0.12);
     }
 
     .output-grid {
@@ -80,23 +103,25 @@
     }
 
     .panel {
-      background-color: var(--panel-bg);
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      background: linear-gradient(180deg, rgba(19, 31, 54, 0.72), rgba(13, 21, 39, 0.74));
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
     }
 
-    .symbolic-panel { border-top: 4px solid var(--accent-orange); }
+    .symbolic-panel { border-top: 3px solid var(--accent-gold); }
     .engineering-panel { border-top: 4px solid var(--accent-blue); }
 
     h2 {
       margin-top: 0;
-      font-size: 1.4rem;
+      font-size: 1.25rem;
+      font-weight: 620;
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
+      padding-bottom: 12px;
     }
 
-    .symbolic-panel h2 { color: var(--accent-orange); }
+    .symbolic-panel h2 { color: var(--accent-gold); }
     .engineering-panel h2 { color: var(--accent-blue); }
 
     .data-row {
@@ -108,16 +133,15 @@
     }
 
     .data-row:last-child { border-bottom: none; }
-    .data-label { color: #8a99ad; font-size: 0.95rem; }
+    .data-label { color: var(--muted-text); font-size: 0.9rem; }
     .data-value { font-weight: 600; font-family: monospace; font-size: 1.05rem; text-align: right; }
 
     .alert-text {
-      font-size: 0.85rem;
-      color: #ff4a4a;
-      font-style: italic;
+      font-size: 0.84rem;
+      color: #b8c7de;
       margin-top: 15px;
-      border-left: 2px solid #ff4a4a;
-      padding-left: 10px;
+      border-left: 2px solid rgba(112, 214, 255, 0.48);
+      padding-left: 12px;
     }
   </style>
 </head>
