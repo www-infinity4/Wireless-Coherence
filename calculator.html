@@ -217,6 +217,7 @@
 
   <script>
     const cSpeed = 299792458;
+    const TWO_PI = 2 * Math.PI;
     const elements = {
       Ag: { name: "Silver", z: 47, mass: 107.87, behavior: "Diamagnetic" },
       Ni: { name: "Nickel", z: 28, mass: 58.69, behavior: "Ferromagnetic" },
@@ -229,21 +230,15 @@
     };
 
     function getSymbolicData(src, load) {
-      let analogy = "Balancing energy distribution across elemental junctions.";
-      let turns;
-      if (src === "Ag" && load === "Ni") {
-        analogy = "High-frequency broadcast stepping down into dense storage.";
-        turns = 152;
-      } else if (src === "Ne" && load === "Ar") {
-        analogy = "Transitioning from core density to broader field volume.";
-        turns = 53;
-      } else if (src === "Pd" && load === "In") {
-        analogy = "Sealing dense oscillations inside a controlled flow trap.";
-        turns = 141;
-      } else {
-        turns = 152;
-      }
-      return { analogy, turns };
+      const symbolicPairs = {
+        "Ag-Ni": { turns: 152, analogy: "High-frequency broadcast stepping down into dense storage." },
+        "Ne-Ar": { turns: 53, analogy: "Transitioning from core density to broader field volume." },
+        "Pd-In": { turns: 141, analogy: "Sealing dense oscillations inside a controlled flow trap." }
+      };
+      return symbolicPairs[`${src}-${load}`] || {
+        turns: 152,
+        analogy: "Balancing energy distribution across elemental junctions."
+      };
     }
 
     function formatFrequency(freq) {
@@ -258,8 +253,10 @@
       const loadKey = document.getElementById("load-element").value;
       const lInput = parseFloat(document.getElementById("inductance").value);
       const cInput = parseFloat(document.getElementById("capacitance").value);
-      const lScale = parseFloat(document.getElementById("unit-l").value);
-      const cScale = parseFloat(document.getElementById("unit-c").value);
+      const lUnit = document.getElementById("unit-l");
+      const cUnit = document.getElementById("unit-c");
+      const lScale = parseFloat(lUnit.value);
+      const cScale = parseFloat(cUnit.value);
       const lVal = lInput * lScale;
       const cVal = cInput * cScale;
 
@@ -273,14 +270,14 @@
       document.getElementById("sym-role").innerText = `${src.name} = signal, ${load.name} = reservoir`;
       document.getElementById("sym-analogy").innerText = sym.analogy;
 
-      const freq = lVal > 0 && cVal > 0 ? 1 / (2 * Math.PI * Math.sqrt(lVal * cVal)) : NaN;
+      const freq = lVal > 0 && cVal > 0 ? 1 / (TWO_PI * Math.sqrt(lVal * cVal)) : NaN;
       const wavelength = Number.isFinite(freq) && freq > 0 ? cSpeed / freq : NaN;
-      const impedanceRatio = Math.pow(sym.turns, 2);
+      const impedanceRatio = sym.turns ** 2;
 
       document.getElementById("eng-turns").innerText = `${sym.turns} : 1`;
       document.getElementById("eng-impedance").innerText = `${impedanceRatio.toLocaleString()} : 1`;
       document.getElementById("eng-freq").innerText = formatFrequency(freq);
-      document.getElementById("eng-lc").innerText = `${lInput} × ${lScale.toExponential(0)} H, ${cInput} × ${cScale.toExponential(0)} F`;
+      document.getElementById("eng-lc").innerText = `${lInput} ${lUnit.selectedOptions[0].text.split(" ")[0]}, ${cInput} ${cUnit.selectedOptions[0].text.split(" ")[0]}`;
       document.getElementById("eng-wave").innerText = Number.isFinite(wavelength) ? `${wavelength.toFixed(2)} meters` : "N/A";
       document.getElementById("eng-safety").innerText = Number.isFinite(freq) ? "Prototype at ≤ 24 V low-voltage bench supply" : "Set valid L and C first";
       document.getElementById("eng-behavior").innerText = `${src.behavior} source to ${load.behavior} load`;
