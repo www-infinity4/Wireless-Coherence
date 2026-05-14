@@ -111,7 +111,7 @@
     }
 
     .symbolic-panel { border-top: 3px solid var(--accent-gold); }
-    .engineering-panel { border-top: 4px solid var(--accent-blue); }
+    .engineering-panel { border-top: 3px solid var(--accent-blue); }
 
     h2 {
       margin-top: 0;
@@ -230,7 +230,7 @@
 
     function getSymbolicData(src, load) {
       let analogy = "Balancing energy distribution across elemental junctions.";
-      let turns = 152;
+      let turns;
       if (src === "Ag" && load === "Ni") {
         analogy = "High-frequency broadcast stepping down into dense storage.";
         turns = 152;
@@ -240,6 +240,8 @@
       } else if (src === "Pd" && load === "In") {
         analogy = "Sealing dense oscillations inside a controlled flow trap.";
         turns = 141;
+      } else {
+        turns = 152;
       }
       return { analogy, turns };
     }
