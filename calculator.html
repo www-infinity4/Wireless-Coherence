@@ -86,6 +86,11 @@
       transition: border-color 160ms ease, box-shadow 160ms ease;
     }
 
+    .unit-select {
+      margin-top: 5px;
+      padding: 5px;
+    }
+
     select:focus, input:focus {
       outline: none;
       border-color: rgba(112, 214, 255, 0.62);
@@ -156,25 +161,25 @@
       <div class="input-group">
         <label for="source-element">Source Material (Primary)</label>
         <select id="source-element" onchange="calculateAll()">
-          <option value="Ag" selected>Silver (Z=47)</option>
-          <option value="Ne">Neon (Z=10)</option>
-          <option value="Pd">Palladium (Z=46)</option>
-          <option value="Cd">Cadmium (Z=48)</option>
+          <option value="Ag" aria-label="Silver, atomic number 47" selected>Silver (Z=47)</option>
+          <option value="Ne" aria-label="Neon, atomic number 10">Neon (Z=10)</option>
+          <option value="Pd" aria-label="Palladium, atomic number 46">Palladium (Z=46)</option>
+          <option value="Cd" aria-label="Cadmium, atomic number 48">Cadmium (Z=48)</option>
         </select>
       </div>
       <div class="input-group">
         <label for="load-element">Load Material (Secondary)</label>
         <select id="load-element" onchange="calculateAll()">
-          <option value="Ni" selected>Nickel (Z=28)</option>
-          <option value="Ar">Argon (Z=18)</option>
-          <option value="In">Indium (Z=49)</option>
-          <option value="Li">Lithium (Z=3)</option>
+          <option value="Ni" aria-label="Nickel, atomic number 28" selected>Nickel (Z=28)</option>
+          <option value="Ar" aria-label="Argon, atomic number 18">Argon (Z=18)</option>
+          <option value="In" aria-label="Indium, atomic number 49">Indium (Z=49)</option>
+          <option value="Li" aria-label="Lithium, atomic number 3">Lithium (Z=3)</option>
         </select>
       </div>
       <div class="input-group">
         <label for="inductance">Inductance (L)</label>
         <input type="number" id="inductance" value="10" step="any" oninput="calculateAll()" />
-        <select id="unit-l" onchange="calculateAll()" style="margin-top: 5px; padding: 5px;">
+        <select id="unit-l" class="unit-select" onchange="calculateAll()">
           <option value="1e-6" data-symbol="μH" selected>μH (Microhenries)</option>
           <option value="1e-3" data-symbol="mH">mH (Millihenries)</option>
         </select>
@@ -182,7 +187,7 @@
       <div class="input-group">
         <label for="capacitance">Capacitance (C)</label>
         <input type="number" id="capacitance" value="22" step="any" oninput="calculateAll()" />
-        <select id="unit-c" onchange="calculateAll()" style="margin-top: 5px; padding: 5px;">
+        <select id="unit-c" class="unit-select" onchange="calculateAll()">
           <option value="1e-12" data-symbol="pF" selected>pF (Picofarads)</option>
           <option value="1e-6" data-symbol="μF">μF (Microfarads)</option>
         </select>
@@ -237,7 +242,7 @@
       };
       const matchedPair = symbolicPairs[`${srcKey}-${loadKey}`];
       if (matchedPair) return matchedPair;
-      const derivedTurns = load.z > 0 ? Math.sqrt(src.z / load.z) : 0;
+      const derivedTurns = load.z > 0 ? Math.sqrt(src.z / load.z) : Number.NaN;
       return {
         turns: Number(derivedTurns.toFixed(3)),
         analogy: "Balancing energy distribution across elemental junctions."
@@ -280,7 +285,9 @@
       document.getElementById("eng-turns").innerText = `${sym.turns} : 1`;
       document.getElementById("eng-impedance").innerText = `${impedanceRatio.toLocaleString()} : 1`;
       document.getElementById("eng-freq").innerText = formatFrequency(freq);
-      document.getElementById("eng-lc").innerText = `${lInput} ${lUnit.selectedOptions[0].dataset.symbol}, ${cInput} ${cUnit.selectedOptions[0].dataset.symbol}`;
+      const lSymbol = lUnit.selectedOptions[0]?.dataset?.symbol || "";
+      const cSymbol = cUnit.selectedOptions[0]?.dataset?.symbol || "";
+      document.getElementById("eng-lc").innerText = `${lInput} ${lSymbol}, ${cInput} ${cSymbol}`;
       document.getElementById("eng-wave").innerText = Number.isFinite(wavelength) ? `${wavelength.toFixed(2)} meters` : "N/A";
       document.getElementById("eng-safety").innerText = Number.isFinite(freq) ? "Prototype at ≤ 24 V low-voltage bench supply" : "Set valid L and C first";
       document.getElementById("eng-behavior").innerText = `${src.behavior} source to ${load.behavior} load`;
