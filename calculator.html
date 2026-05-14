@@ -416,8 +416,8 @@
     }
 
     /* ── Canvas: LC Tank ─────────────────────────────────────────── */
-    /* Phase rate 0.048 rad/frame ≈ 1.44 rad/s at 30 fps — slow enough to
-       read charge/discharge cycles without strobing at high-refresh displays. */
+    /* ANIM_RATE: phase rate of 0.048 rad/frame ≈ 1.44 rad/s at 30 fps — slow
+       enough to read charge/discharge cycles without strobing at high refresh. */
     const ANIM_RATE = 0.048;
     function drawLCTank(ctx) {
       const W = 280, H = 160;
@@ -562,7 +562,7 @@
       }
 
       /* Skin current ring.
-         Scale: globalSkinDepth is in metres; multiply by 1.1×10⁵ to map the
+         Scale: globalSkinDepth is in meters; multiply by 1.1×10⁵ to map the
          typical ~1–20 μm range to a 0.11–22 px ring thickness on the canvas. */
       const visualThickness = Math.max(2, Math.min(outerR - 2, globalSkinDepth * 1.1e5));
       ctx.strokeStyle = "rgba(112, 214, 255, 0.85)";
