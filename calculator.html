@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinity Resonance Ratio Calculator</title>
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --panel-bg: #131c33;
+      --accent-blue: #00d2ff;
+      --accent-orange: #ff7b00;
+      --text-light: #e2e8f0;
+      --border-color: #23355a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 20px;
+    }
+
+    h1 { color: var(--accent-blue); margin: 0 0 10px 0; font-size: 2.2rem; }
+    p.subtitle { color: #8a99ad; margin: 0; font-size: 1.1rem; }
+
+    .input-panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .input-group { display: flex; flex-direction: column; }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--accent-blue);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select, input {
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 768px) {
+      .output-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background-color: var(--panel-bg);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .symbolic-panel { border-top: 4px solid var(--accent-orange); }
+    .engineering-panel { border-top: 4px solid var(--accent-blue); }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .symbolic-panel h2 { color: var(--accent-orange); }
+    .engineering-panel h2 { color: var(--accent-blue); }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .data-row:last-child { border-bottom: none; }
+    .data-label { color: #8a99ad; font-size: 0.95rem; }
+    .data-value { font-weight: 600; font-family: monospace; font-size: 1.05rem; text-align: right; }
+
+    .alert-text {
+      font-size: 0.85rem;
+      color: #ff4a4a;
+      font-style: italic;
+      margin-top: 15px;
+      border-left: 2px solid #ff4a4a;
+      padding-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Infinity Resonance Ratio Calculator</h1>
+      <p class="subtitle">Convert symbolic element ratios into real RF circuit values.</p>
+    </header>
+
+    <div class="input-panel">
+      <div class="input-group">
+        <label for="source-element">Source Material (Primary)</label>
+        <select id="source-element" onchange="calculateAll()">
+          <option value="Ag" selected>Silver (Z=47)</option>
+          <option value="Ne">Neon (Z=10)</option>
+          <option value="Pd">Palladium (Z=46)</option>
+          <option value="Cd">Cadmium (Z=48)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="load-element">Load Material (Secondary)</label>
+        <select id="load-element" onchange="calculateAll()">
+          <option value="Ni" selected>Nickel (Z=28)</option>
+          <option value="Ar">Argon (Z=18)</option>
+          <option value="In">Indium (Z=49)</option>
+          <option value="Li">Lithium (Z=3)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="inductance">Inductance (L)</label>
+        <input type="number" id="inductance" value="10" step="any" oninput="calculateAll()" />
+        <select id="unit-l" onchange="calculateAll()" style="margin-top: 5px; padding: 5px;">
+          <option value="1e-6" selected>μH (Microhenries)</option>
+          <option value="1e-3">mH (Millihenries)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="capacitance">Capacitance (C)</label>
+        <input type="number" id="capacitance" value="22" step="any" oninput="calculateAll()" />
+        <select id="unit-c" onchange="calculateAll()" style="margin-top: 5px; padding: 5px;">
+          <option value="1e-12" selected>pF (Picofarads)</option>
+          <option value="1e-6">μF (Microfarads)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="output-grid">
+      <div class="panel symbolic-panel">
+        <h2>Track A — Infinity Interpretation</h2>
+        <div class="data-row"><span class="data-label">Material Mapping</span><span class="data-value" id="sym-mapping">--</span></div>
+        <div class="data-row"><span class="data-label">Atomic Numbers (Z Ratio)</span><span class="data-value" id="sym-z-ratio">--</span></div>
+        <div class="data-row"><span class="data-label">Mass Ratio Equivalent</span><span class="data-value" id="sym-mass-ratio">--</span></div>
+        <div class="data-row"><span class="data-label">Signal/Reservoir Framing</span><span class="data-value" id="sym-role">--</span></div>
+        <div class="data-row"><span class="data-label">Gear Reduction Analogy</span><span class="data-value" id="sym-analogy">--</span></div>
+        <div class="data-row"><span class="data-label">Suggested Crystal Lens</span><span class="data-value">Ruby = lens</span></div>
+        <div class="data-row"><span class="data-label">Suggested Shield</span><span class="data-value">Indium = shield</span></div>
+      </div>
+
+      <div class="panel engineering-panel">
+        <h2>Track B — Engineering Output</h2>
+        <div class="data-row"><span class="data-label">Transformer Turns Ratio (Nₚ:Nₛ)</span><span class="data-value" id="eng-turns">--</span></div>
+        <div class="data-row"><span class="data-label">Impedance Transformation (N²)</span><span class="data-value" id="eng-impedance">--</span></div>
+        <div class="data-row"><span class="data-label">Calculated LC Tank Frequency</span><span class="data-value" id="eng-freq">--</span></div>
+        <div class="data-row"><span class="data-label">Configured LC Values</span><span class="data-value" id="eng-lc">--</span></div>
+        <div class="data-row"><span class="data-label">Free-Space Wavelength (λ)</span><span class="data-value" id="eng-wave">--</span></div>
+        <div class="data-row"><span class="data-label">Safety Range</span><span class="data-value" id="eng-safety">--</span></div>
+        <div class="data-row"><span class="data-label">Material Behavior</span><span class="data-value" id="eng-behavior">--</span></div>
+        <p class="alert-text">Safe, low-voltage framing: use isolated bench supplies and keep initial tests in low-power RF prototyping ranges.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cSpeed = 299792458;
+    const elements = {
+      Ag: { name: "Silver", z: 47, mass: 107.87, behavior: "Diamagnetic" },
+      Ni: { name: "Nickel", z: 28, mass: 58.69, behavior: "Ferromagnetic" },
+      Ne: { name: "Neon", z: 10, mass: 20.18, behavior: "Paramagnetic Gas" },
+      Ar: { name: "Argon", z: 18, mass: 39.95, behavior: "Paramagnetic Gas" },
+      Pd: { name: "Palladium", z: 46, mass: 106.42, behavior: "Paramagnetic" },
+      Cd: { name: "Cadmium", z: 48, mass: 112.41, behavior: "Diamagnetic" },
+      In: { name: "Indium", z: 49, mass: 114.82, behavior: "Paramagnetic" },
+      Li: { name: "Lithium", z: 3, mass: 6.94, behavior: "Paramagnetic" }
+    };
+
+    function getSymbolicData(src, load) {
+      let analogy = "Balancing energy distribution across elemental junctions.";
+      let turns = 152;
+      if (src === "Ag" && load === "Ni") {
+        analogy = "High-frequency broadcast stepping down into dense storage.";
+        turns = 152;
+      } else if (src === "Ne" && load === "Ar") {
+        analogy = "Transitioning from core density to broader field volume.";
+        turns = 53;
+      } else if (src === "Pd" && load === "In") {
+        analogy = "Sealing dense oscillations inside a controlled flow trap.";
+        turns = 141;
+      }
+      return { analogy, turns };
+    }
+
+    function formatFrequency(freq) {
+      if (!Number.isFinite(freq) || freq <= 0) return "Invalid LC input";
+      if (freq >= 1e6) return `${(freq / 1e6).toFixed(2)} MHz`;
+      if (freq >= 1e3) return `${(freq / 1e3).toFixed(2)} kHz`;
+      return `${freq.toFixed(2)} Hz`;
+    }
+
+    function calculateAll() {
+      const srcKey = document.getElementById("source-element").value;
+      const loadKey = document.getElementById("load-element").value;
+      const lInput = parseFloat(document.getElementById("inductance").value);
+      const cInput = parseFloat(document.getElementById("capacitance").value);
+      const lScale = parseFloat(document.getElementById("unit-l").value);
+      const cScale = parseFloat(document.getElementById("unit-c").value);
+      const lVal = lInput * lScale;
+      const cVal = cInput * cScale;
+
+      const src = elements[srcKey];
+      const load = elements[loadKey];
+      const sym = getSymbolicData(srcKey, loadKey);
+
+      document.getElementById("sym-mapping").innerText = `${src.name} ↔ ${load.name}`;
+      document.getElementById("sym-z-ratio").innerText = `${src.z} : ${load.z}`;
+      document.getElementById("sym-mass-ratio").innerText = `${(src.mass / load.mass).toFixed(2)} : 1`;
+      document.getElementById("sym-role").innerText = `${src.name} = signal, ${load.name} = reservoir`;
+      document.getElementById("sym-analogy").innerText = sym.analogy;
+
+      const freq = lVal > 0 && cVal > 0 ? 1 / (2 * Math.PI * Math.sqrt(lVal * cVal)) : NaN;
+      const wavelength = Number.isFinite(freq) && freq > 0 ? cSpeed / freq : NaN;
+      const impedanceRatio = Math.pow(sym.turns, 2);
+
+      document.getElementById("eng-turns").innerText = `${sym.turns} : 1`;
+      document.getElementById("eng-impedance").innerText = `${impedanceRatio.toLocaleString()} : 1`;
+      document.getElementById("eng-freq").innerText = formatFrequency(freq);
+      document.getElementById("eng-lc").innerText = `${lInput} × ${lScale.toExponential(0)} H, ${cInput} × ${cScale.toExponential(0)} F`;
+      document.getElementById("eng-wave").innerText = Number.isFinite(wavelength) ? `${wavelength.toFixed(2)} meters` : "N/A";
+      document.getElementById("eng-safety").innerText = Number.isFinite(freq) ? "Prototype at ≤ 24 V low-voltage bench supply" : "Set valid L and C first";
+      document.getElementById("eng-behavior").innerText = `${src.behavior} source to ${load.behavior} load`;
+    }
+
+    window.onload = calculateAll;
+  </script>
+</body>
+</html>
