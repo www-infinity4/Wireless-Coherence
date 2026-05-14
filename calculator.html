@@ -300,7 +300,7 @@
           <canvas id="canvas-skin" width="280" height="160"></canvas>
         </div>
       </div>
-      <p class="visual-note">Visualisations update synchronously on input change and animate continuously via requestAnimationFrame.</p>
+      <p class="visual-note">Visualizations update synchronously on input change and animate continuously via requestAnimationFrame.</p>
     </div>
   </div>
 
@@ -339,7 +339,9 @@
       };
       const matchedPair = symbolicPairs[`${srcKey}-${loadKey}`];
       if (matchedPair) return matchedPair;
-      const derivedTurns = load.z > 0 ? Math.sqrt(src.z / load.z) : Number.NaN;
+      /* All elements in the database have positive atomic numbers, so z=0 is
+         treated as invalid to guard against any future data entry errors. */
+      const derivedTurns = load.z === 0 ? Number.NaN : Math.sqrt(src.z / load.z);
       return {
         turns: Number(derivedTurns.toFixed(3)),
         analogy: "Balancing energy distribution across elemental junctions."
@@ -414,11 +416,14 @@
     }
 
     /* ── Canvas: LC Tank ─────────────────────────────────────────── */
+    /* Phase rate 0.048 rad/frame ≈ 1.44 rad/s at 30 fps — slow enough to
+       read charge/discharge cycles without strobing at high-refresh displays. */
+    const ANIM_RATE = 0.048;
     function drawLCTank(ctx) {
       const W = 280, H = 160;
       ctx.clearRect(0, 0, W, H);
-      const charge  = Math.sin(animationTime * 0.048);
-      const current = Math.cos(animationTime * 0.048);
+      const charge  = Math.sin(animationTime * ANIM_RATE);
+      const current = Math.cos(animationTime * ANIM_RATE);
 
       /* Capacitor plates */
       ctx.strokeStyle = "#2d4060"; ctx.lineWidth = 5;
@@ -556,7 +561,9 @@
         return;
       }
 
-      /* Skin current ring */
+      /* Skin current ring.
+         Scale: globalSkinDepth is in metres; multiply by 1.1×10⁵ to map the
+         typical ~1–20 μm range to a 0.11–22 px ring thickness on the canvas. */
       const visualThickness = Math.max(2, Math.min(outerR - 2, globalSkinDepth * 1.1e5));
       ctx.strokeStyle = "rgba(112, 214, 255, 0.85)";
       ctx.lineWidth = visualThickness;
