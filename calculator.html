@@ -175,16 +175,16 @@
         <label for="inductance">Inductance (L)</label>
         <input type="number" id="inductance" value="10" step="any" oninput="calculateAll()" />
         <select id="unit-l" onchange="calculateAll()" style="margin-top: 5px; padding: 5px;">
-          <option value="1e-6" selected>μH (Microhenries)</option>
-          <option value="1e-3">mH (Millihenries)</option>
+          <option value="1e-6" data-symbol="μH" selected>μH (Microhenries)</option>
+          <option value="1e-3" data-symbol="mH">mH (Millihenries)</option>
         </select>
       </div>
       <div class="input-group">
         <label for="capacitance">Capacitance (C)</label>
         <input type="number" id="capacitance" value="22" step="any" oninput="calculateAll()" />
         <select id="unit-c" onchange="calculateAll()" style="margin-top: 5px; padding: 5px;">
-          <option value="1e-12" selected>pF (Picofarads)</option>
-          <option value="1e-6">μF (Microfarads)</option>
+          <option value="1e-12" data-symbol="pF" selected>pF (Picofarads)</option>
+          <option value="1e-6" data-symbol="μF">μF (Microfarads)</option>
         </select>
       </div>
     </div>
@@ -229,14 +229,17 @@
       Li: { name: "Lithium", z: 3, mass: 6.94, behavior: "Paramagnetic" }
     };
 
-    function getSymbolicData(src, load) {
+    function getSymbolicData(srcKey, loadKey, src, load) {
       const symbolicPairs = {
         "Ag-Ni": { turns: 152, analogy: "High-frequency broadcast stepping down into dense storage." },
         "Ne-Ar": { turns: 53, analogy: "Transitioning from core density to broader field volume." },
         "Pd-In": { turns: 141, analogy: "Sealing dense oscillations inside a controlled flow trap." }
       };
-      return symbolicPairs[`${src}-${load}`] || {
-        turns: 152,
+      const matchedPair = symbolicPairs[`${srcKey}-${loadKey}`];
+      if (matchedPair) return matchedPair;
+      const derivedTurns = load.z > 0 ? Math.sqrt(src.z / load.z) : 0;
+      return {
+        turns: Number(derivedTurns.toFixed(3)),
         analogy: "Balancing energy distribution across elemental junctions."
       };
     }
@@ -262,7 +265,7 @@
 
       const src = elements[srcKey];
       const load = elements[loadKey];
-      const sym = getSymbolicData(srcKey, loadKey);
+      const sym = getSymbolicData(srcKey, loadKey, src, load);
 
       document.getElementById("sym-mapping").innerText = `${src.name} ↔ ${load.name}`;
       document.getElementById("sym-z-ratio").innerText = `${src.z} : ${load.z}`;
@@ -277,7 +280,7 @@
       document.getElementById("eng-turns").innerText = `${sym.turns} : 1`;
       document.getElementById("eng-impedance").innerText = `${impedanceRatio.toLocaleString()} : 1`;
       document.getElementById("eng-freq").innerText = formatFrequency(freq);
-      document.getElementById("eng-lc").innerText = `${lInput} ${lUnit.selectedOptions[0].text.split(" ")[0]}, ${cInput} ${cUnit.selectedOptions[0].text.split(" ")[0]}`;
+      document.getElementById("eng-lc").innerText = `${lInput} ${lUnit.selectedOptions[0].dataset.symbol}, ${cInput} ${cUnit.selectedOptions[0].dataset.symbol}`;
       document.getElementById("eng-wave").innerText = Number.isFinite(wavelength) ? `${wavelength.toFixed(2)} meters` : "N/A";
       document.getElementById("eng-safety").innerText = Number.isFinite(freq) ? "Prototype at ≤ 24 V low-voltage bench supply" : "Set valid L and C first";
       document.getElementById("eng-behavior").innerText = `${src.behavior} source to ${load.behavior} load`;
