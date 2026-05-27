@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinity Resonance Ratio Calculator</title>
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --panel-bg: rgba(17, 25, 44, 0.72);
+      --surface-dark: #0d1527;
+      --accent-blue: #70d6ff;
+      --accent-gold: #d9b26f;
+      --text-light: #e6edf9;
+      --muted-text: #9fb0cc;
+      --border-color: rgba(159, 176, 204, 0.22);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -20%, rgba(112, 214, 255, 0.14), transparent 60%),
+        radial-gradient(1000px 550px at 90% -10%, rgba(217, 178, 111, 0.12), transparent 55%),
+        var(--bg-dark);
+      color: var(--text-light);
+      margin: 0;
+      padding: 28px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 34px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 24px;
+    }
+
+    h1 {
+      color: var(--text-light);
+      margin: 0 0 10px 0;
+      font-size: 2.25rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+    }
+    p.subtitle {
+      color: var(--muted-text);
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .input-panel {
+      background: linear-gradient(180deg, rgba(30, 44, 74, 0.5), rgba(17, 25, 44, 0.5));
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .input-group { display: flex; flex-direction: column; }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--accent-blue);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    select, input {
+      background-color: var(--surface-dark);
+      border: 1px solid var(--border-color);
+      color: var(--text-light);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .unit-select {
+      margin-top: 5px;
+      padding: 5px;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: rgba(112, 214, 255, 0.62);
+      box-shadow: 0 0 0 3px rgba(112, 214, 255, 0.12);
+    }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 768px) {
+      .output-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(19, 31, 54, 0.72), rgba(13, 21, 39, 0.74));
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+    }
+
+    .symbolic-panel { border-top: 3px solid var(--accent-gold); }
+    .engineering-panel { border-top: 3px solid var(--accent-blue); }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      font-weight: 620;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .symbolic-panel h2 { color: var(--accent-gold); }
+    .engineering-panel h2 { color: var(--accent-blue); }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .data-row:last-child { border-bottom: none; }
+    .data-label { color: var(--muted-text); font-size: 0.9rem; }
+    .data-value { font-weight: 600; font-family: monospace; font-size: 1.05rem; text-align: right; }
+
+    .alert-text {
+      font-size: 0.84rem;
+      color: #b8c7de;
+      margin-top: 15px;
+      border-left: 2px solid rgba(112, 214, 255, 0.48);
+      padding-left: 12px;
+    }
+
+    /* ── Section 3: Visual Field Engine ────────────────────────────── */
+    .visual-section {
+      background: linear-gradient(180deg, rgba(15, 26, 48, 0.72), rgba(10, 18, 34, 0.74));
+      border: 1px solid var(--border-color);
+      border-top: 3px solid #00ffaa;
+      border-radius: 14px;
+      padding: 22px;
+      margin-top: 28px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+    }
+
+    .visual-section h2 { color: #00ffaa; margin-top: 0; }
+
+    .visual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .visual-grid { grid-template-columns: 1fr; }
+    }
+
+    .visual-card {
+      background: rgba(6, 9, 20, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .visual-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 0.78rem;
+      color: var(--muted-text);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      align-self: flex-start;
+    }
+
+    canvas {
+      background: #04070f;
+      border-radius: 6px;
+      max-width: 100%;
+      display: block;
+    }
+
+    .visual-note {
+      font-size: 0.82rem;
+      color: var(--muted-text);
+      margin-top: 18px;
+      border-left: 2px solid rgba(0, 255, 170, 0.4);
+      padding-left: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Infinity Resonance Ratio Calculator</h1>
+      <p class="subtitle">Convert symbolic element ratios into real RF circuit values.</p>
+    </header>
+
+    <div class="input-panel">
+      <div class="input-group">
+        <label for="source-element">Source Material (Primary)</label>
+        <select id="source-element" onchange="calculateAll()">
+          <option value="Ag" aria-label="Silver, atomic number 47" selected>Silver (Z=47)</option>
+          <option value="Ne" aria-label="Neon, atomic number 10">Neon (Z=10)</option>
+          <option value="Pd" aria-label="Palladium, atomic number 46">Palladium (Z=46)</option>
+          <option value="Cd" aria-label="Cadmium, atomic number 48">Cadmium (Z=48)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="load-element">Load Material (Secondary)</label>
+        <select id="load-element" onchange="calculateAll()">
+          <option value="Ni" aria-label="Nickel, atomic number 28" selected>Nickel (Z=28)</option>
+          <option value="Ar" aria-label="Argon, atomic number 18">Argon (Z=18)</option>
+          <option value="In" aria-label="Indium, atomic number 49">Indium (Z=49)</option>
+          <option value="Li" aria-label="Lithium, atomic number 3">Lithium (Z=3)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="inductance">Inductance (L)</label>
+        <input type="number" id="inductance" value="10" step="any" oninput="calculateAll()" />
+        <select id="unit-l" class="unit-select" onchange="calculateAll()">
+          <option value="1e-6" data-symbol="μH" selected>μH (Microhenries)</option>
+          <option value="1e-3" data-symbol="mH">mH (Millihenries)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="capacitance">Capacitance (C)</label>
+        <input type="number" id="capacitance" value="22" step="any" oninput="calculateAll()" />
+        <select id="unit-c" class="unit-select" onchange="calculateAll()">
+          <option value="1e-12" data-symbol="pF" selected>pF (Picofarads)</option>
+          <option value="1e-6" data-symbol="μF">μF (Microfarads)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="output-grid">
+      <div class="panel symbolic-panel">
+        <h2>Track A — Infinity Interpretation</h2>
+        <div class="data-row"><span class="data-label">Material Mapping</span><span class="data-value" id="sym-mapping">--</span></div>
+        <div class="data-row"><span class="data-label">Atomic Numbers (Z Ratio)</span><span class="data-value" id="sym-z-ratio">--</span></div>
+        <div class="data-row"><span class="data-label">Mass Ratio Equivalent</span><span class="data-value" id="sym-mass-ratio">--</span></div>
+        <div class="data-row"><span class="data-label">Signal/Reservoir Framing</span><span class="data-value" id="sym-role">--</span></div>
+        <div class="data-row"><span class="data-label">Gear Reduction Analogy</span><span class="data-value" id="sym-analogy">--</span></div>
+        <div class="data-row"><span class="data-label">Suggested Crystal Lens</span><span class="data-value">Ruby = lens</span></div>
+        <div class="data-row"><span class="data-label">Suggested Shield</span><span class="data-value">Indium = shield</span></div>
+      </div>
+
+      <div class="panel engineering-panel">
+        <h2>Track B — Engineering Output</h2>
+        <div class="data-row"><span class="data-label">Transformer Turns Ratio (Nₚ:Nₛ)</span><span class="data-value" id="eng-turns">--</span></div>
+        <div class="data-row"><span class="data-label">Impedance Transformation (N²)</span><span class="data-value" id="eng-impedance">--</span></div>
+        <div class="data-row"><span class="data-label">Calculated LC Tank Frequency</span><span class="data-value" id="eng-freq">--</span></div>
+        <div class="data-row"><span class="data-label">Configured LC Values</span><span class="data-value" id="eng-lc">--</span></div>
+        <div class="data-row"><span class="data-label">Free-Space Wavelength (λ)</span><span class="data-value" id="eng-wave">--</span></div>
+        <div class="data-row"><span class="data-label">Safety Range</span><span class="data-value" id="eng-safety">--</span></div>
+        <div class="data-row"><span class="data-label">Material Behavior</span><span class="data-value" id="eng-behavior">--</span></div>
+        <div class="data-row"><span class="data-label">Skin Depth at Tank Frequency</span><span class="data-value" id="eng-skin">--</span></div>
+        <div class="data-row"><span class="data-label">Waveguide / Shield Model</span><span class="data-value">Coaxial Faraday Shielding</span></div>
+        <p class="alert-text">Safe, low-voltage framing: use isolated bench supplies and keep initial tests in low-power RF prototyping ranges.</p>
+      </div>
+    </div>
+
+    <!-- Section 3: Visual Field Engine -->
+    <div class="visual-section">
+      <h2>3. Visual Field Engine Instrumentation</h2>
+      <div class="visual-grid">
+        <div class="visual-card">
+          <h3>LC Tank Wave Dynamics</h3>
+          <canvas id="canvas-lc" width="280" height="160"></canvas>
+        </div>
+        <div class="visual-card">
+          <h3>Transformer Turns Matching</h3>
+          <canvas id="canvas-xformer" width="280" height="160"></canvas>
+        </div>
+        <div class="visual-card">
+          <h3>Calculated Wavelength Profile</h3>
+          <canvas id="canvas-wave" width="280" height="160"></canvas>
+        </div>
+        <div class="visual-card">
+          <h3>Material Skin Depth Profile</h3>
+          <canvas id="canvas-skin" width="280" height="160"></canvas>
+        </div>
+      </div>
+      <p class="visual-note">Visualizations update synchronously on input change and animate continuously via requestAnimationFrame.</p>
+    </div>
+  </div>
+
+  <script>
+    const cSpeed = 299792458;
+    const TWO_PI = 2 * Math.PI;
+    const MU0 = 4 * Math.PI * 1e-7;
+
+    const elements = {
+      Ag: { name: "Silver",    z: 47, mass: 107.87, behavior: "Diamagnetic",     rho: 1.59e-8,  color: "#e2e8f0", isInsulator: false },
+      Ni: { name: "Nickel",    z: 28, mass: 58.69,  behavior: "Ferromagnetic",   rho: 6.99e-8,  color: "#a0aec0", isInsulator: false },
+      Ne: { name: "Neon",      z: 10, mass: 20.18,  behavior: "Paramagnetic Gas",rho: null,     color: "#ff6347", isInsulator: true  },
+      Ar: { name: "Argon",     z: 18, mass: 39.95,  behavior: "Paramagnetic Gas",rho: null,     color: "#9932cc", isInsulator: true  },
+      Pd: { name: "Palladium", z: 46, mass: 106.42, behavior: "Paramagnetic",    rho: 1.05e-7,  color: "#ced4da", isInsulator: false },
+      Cd: { name: "Cadmium",   z: 48, mass: 112.41, behavior: "Diamagnetic",     rho: 7.27e-8,  color: "#9ae6b4", isInsulator: false },
+      In: { name: "Indium",    z: 49, mass: 114.82, behavior: "Paramagnetic",    rho: 8.37e-8,  color: "#63b3ed", isInsulator: false },
+      Li: { name: "Lithium",   z: 3,  mass: 6.94,   behavior: "Paramagnetic",    rho: 9.28e-8,  color: "#feb2b2", isInsulator: false }
+    };
+
+    /* ── Shared canvas state ─────────────────────────────────────── */
+    let globalFreq      = 10.73e6;
+    let globalTurns     = 152;
+    let globalSkinDepth = 19.5e-6;
+    let globalInsulator = false;
+    let globalSrcKey    = "Ag";
+    let globalLoadKey   = "Ni";
+    let animationTime   = 0;
+    let rafId           = null;
+
+    /* ── Symbolic data lookup ────────────────────────────────────── */
+    function getSymbolicData(srcKey, loadKey, src, load) {
+      const symbolicPairs = {
+        "Ag-Ni": { turns: 152, analogy: "High-frequency broadcast stepping down into dense storage." },
+        "Ne-Ar": { turns: 53,  analogy: "Transitioning from core density to broader field volume."  },
+        "Pd-In": { turns: 141, analogy: "Sealing dense oscillations inside a controlled flow trap." }
+      };
+      const matchedPair = symbolicPairs[`${srcKey}-${loadKey}`];
+      if (matchedPair) return matchedPair;
+      /* All elements in the database have positive atomic numbers, so z=0 is
+         treated as invalid to guard against any future data entry errors. */
+      const derivedTurns = load.z === 0 ? Number.NaN : Math.sqrt(src.z / load.z);
+      return {
+        turns: Number(derivedTurns.toFixed(3)),
+        analogy: "Balancing energy distribution across elemental junctions."
+      };
+    }
+
+    /* ── Frequency formatter ─────────────────────────────────────── */
+    function formatFrequency(freq) {
+      if (!Number.isFinite(freq) || freq <= 0) return "Invalid LC input";
+      if (freq >= 1e6) return `${(freq / 1e6).toFixed(2)} MHz`;
+      if (freq >= 1e3) return `${(freq / 1e3).toFixed(2)} kHz`;
+      return `${freq.toFixed(2)} Hz`;
+    }
+
+    /* ── Main calculation ────────────────────────────────────────── */
+    function calculateAll() {
+      const srcKey  = document.getElementById("source-element").value;
+      const loadKey = document.getElementById("load-element").value;
+      const lInput  = parseFloat(document.getElementById("inductance").value);
+      const cInput  = parseFloat(document.getElementById("capacitance").value);
+      const lUnit   = document.getElementById("unit-l");
+      const cUnit   = document.getElementById("unit-c");
+      const lScale  = parseFloat(lUnit.value);
+      const cScale  = parseFloat(cUnit.value);
+      const lVal    = lInput * lScale;
+      const cVal    = cInput * cScale;
+
+      const src  = elements[srcKey];
+      const load = elements[loadKey];
+      const sym  = getSymbolicData(srcKey, loadKey, src, load);
+
+      /* Track A */
+      document.getElementById("sym-mapping").innerText   = `${src.name} ↔ ${load.name}`;
+      document.getElementById("sym-z-ratio").innerText   = `${src.z} : ${load.z}`;
+      document.getElementById("sym-mass-ratio").innerText= `${(src.mass / load.mass).toFixed(2)} : 1`;
+      document.getElementById("sym-role").innerText      = `${src.name} = signal, ${load.name} = reservoir`;
+      document.getElementById("sym-analogy").innerText   = sym.analogy;
+
+      /* Track B */
+      const freq       = lVal > 0 && cVal > 0 ? 1 / (TWO_PI * Math.sqrt(lVal * cVal)) : NaN;
+      const wavelength = Number.isFinite(freq) && freq > 0 ? cSpeed / freq : NaN;
+      const impedanceRatio = sym.turns ** 2;
+
+      document.getElementById("eng-turns").innerText    = `${sym.turns} : 1`;
+      document.getElementById("eng-impedance").innerText= `${impedanceRatio.toLocaleString()} : 1`;
+      document.getElementById("eng-freq").innerText     = formatFrequency(freq);
+      const lSymbol = lUnit.selectedOptions[0]?.dataset?.symbol || "";
+      const cSymbol = cUnit.selectedOptions[0]?.dataset?.symbol || "";
+      document.getElementById("eng-lc").innerText       = `${lInput} ${lSymbol}, ${cInput} ${cSymbol}`;
+      document.getElementById("eng-wave").innerText     = Number.isFinite(wavelength) ? `${wavelength.toFixed(2)} meters` : "N/A";
+      document.getElementById("eng-safety").innerText   = Number.isFinite(freq) ? "Prototype at ≤ 24 V low-voltage bench supply" : "Set valid L and C first";
+      document.getElementById("eng-behavior").innerText = `${src.behavior} source to ${load.behavior} load`;
+
+      /* Skin depth */
+      let skinText = "N/A";
+      let skinDepth = NaN;
+      if (src.isInsulator) {
+        skinText = `N/A — ${src.name} is a non-conducting gas`;
+      } else if (Number.isFinite(freq) && freq > 0 && src.rho) {
+        skinDepth = Math.sqrt(src.rho / (Math.PI * freq * MU0));
+        skinText  = `${(skinDepth * 1e6).toFixed(1)} μm (in ${src.name})`;
+      }
+      document.getElementById("eng-skin").innerText = skinText;
+
+      /* Update shared state for canvas loop */
+      globalFreq      = Number.isFinite(freq) ? freq : globalFreq;
+      globalTurns     = sym.turns;
+      globalSkinDepth = Number.isFinite(skinDepth) ? skinDepth : globalSkinDepth;
+      globalInsulator = src.isInsulator;
+      globalSrcKey    = srcKey;
+      globalLoadKey   = loadKey;
+    }
+
+    /* ── Canvas: LC Tank ─────────────────────────────────────────── */
+    /* ANIM_RATE: phase rate of 0.048 rad/frame ≈ 1.44 rad/s at 30 fps — slow
+       enough to read charge/discharge cycles without strobing at high refresh. */
+    const ANIM_RATE = 0.048;
+    function drawLCTank(ctx) {
+      const W = 280, H = 160;
+      ctx.clearRect(0, 0, W, H);
+      const charge  = Math.sin(animationTime * ANIM_RATE);
+      const current = Math.cos(animationTime * ANIM_RATE);
+
+      /* Capacitor plates */
+      ctx.strokeStyle = "#2d4060"; ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(55, 45); ctx.lineTo(115, 45);
+      ctx.moveTo(55, 68); ctx.lineTo(115, 68);
+      ctx.stroke();
+
+      /* E-field lines between plates */
+      ctx.strokeStyle = `rgba(217, 178, 111, ${Math.abs(charge) * 0.9 + 0.1})`;
+      ctx.lineWidth = 1.5;
+      for (let x = 64; x <= 106; x += 10) {
+        ctx.beginPath();
+        if (charge >= 0) { ctx.moveTo(x, 48); ctx.lineTo(x, 65); }
+        else             { ctx.moveTo(x, 65); ctx.lineTo(x, 48); }
+        ctx.stroke();
+      }
+
+      /* Inductor coil */
+      ctx.strokeStyle = "#2d4060"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(175, 28);
+      for (let y = 38; y <= 110; y += 18) {
+        ctx.bezierCurveTo(208, y - 10, 208, y + 10, 175, y);
+      }
+      ctx.stroke();
+
+      /* Magnetic flux ring */
+      const fluxAlpha = Math.abs(current) * 0.85 + 0.1;
+      ctx.strokeStyle = `rgba(112, 214, 255, ${fluxAlpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(192, 70, 26 + Math.abs(current) * 10, 50, 0, 0, TWO_PI);
+      ctx.stroke();
+
+      /* Labels */
+      ctx.fillStyle = "rgba(159, 176, 204, 0.7)"; ctx.font = "10px sans-serif";
+      ctx.fillText("E field (capacitor)", 34, 22);
+      ctx.fillText("H field (inductor)", 148, 22);
+    }
+
+    /* ── Canvas: Transformer ─────────────────────────────────────── */
+    function drawTransformer(ctx) {
+      const W = 280, H = 160;
+      ctx.clearRect(0, 0, W, H);
+      const srcColor  = elements[globalSrcKey].color;
+      const loadColor = elements[globalLoadKey].color;
+
+      /* Primary winding */
+      ctx.strokeStyle = srcColor; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(52, 28);
+      for (let y = 38; y <= 118; y += 12) {
+        ctx.bezierCurveTo(84, y - 6, 84, y + 6, 52, y);
+      }
+      ctx.stroke();
+
+      /* Core barrier */
+      ctx.strokeStyle = "rgba(159,176,204,0.28)"; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(118, 22); ctx.lineTo(118, 138); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(130, 22); ctx.lineTo(130, 138); ctx.stroke();
+
+      /* Secondary winding */
+      ctx.strokeStyle = loadColor; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(202, 48);
+      for (let y = 60; y <= 108; y += 24) {
+        ctx.bezierCurveTo(170, y - 8, 170, y + 8, 202, y);
+      }
+      ctx.stroke();
+
+      /* Ratio text */
+      ctx.fillStyle = "rgba(230, 237, 249, 0.9)"; ctx.font = "bold 12px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(`Nₚ : Nₛ  =  ${globalTurns} : 1`, W / 2, 150);
+      ctx.fillText(`Z ratio   =  ${(globalTurns ** 2).toLocaleString()} : 1`, W / 2, 24);
+      ctx.textAlign = "left";
+    }
+
+    /* ── Canvas: Wavelength Bar ──────────────────────────────────── */
+    function drawWavelengthBar(ctx) {
+      const W = 280, H = 160;
+      ctx.clearRect(0, 0, W, H);
+
+      /* Spectrum track */
+      const grad = ctx.createLinearGradient(20, 0, 260, 0);
+      grad.addColorStop(0,   "rgba(112, 214, 255, 0.18)");
+      grad.addColorStop(0.5, "rgba(0, 255, 170, 0.12)");
+      grad.addColorStop(1,   "rgba(217, 178, 111, 0.18)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(20, 65, 240, 14);
+
+      /* Animated waveform */
+      const compression = globalFreq > 1e8 ? 0.6 : globalFreq > 1e6 ? 0.35 : 0.12;
+      const phase       = animationTime * 0.1;
+      ctx.strokeStyle = "rgba(112, 214, 255, 0.85)"; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = 20; x <= 260; x++) {
+        const y = 72 + Math.sin(x * compression + phase) * 22;
+        if (x === 20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      /* Frequency label */
+      ctx.fillStyle = "rgba(230, 237, 249, 0.88)"; ctx.font = "bold 11px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(formatFrequency(globalFreq), W / 2, 24);
+      ctx.fillStyle = "rgba(159, 176, 204, 0.7)"; ctx.font = "10px sans-serif";
+      ctx.fillText("VLF", 26, 140); ctx.fillText("UHF", 238, 140);
+      const wl = cSpeed / globalFreq;
+      ctx.fillText(`λ = ${wl < 1 ? (wl * 100).toFixed(1) + " cm" : wl.toFixed(2) + " m"}`, W / 2, 145);
+      ctx.textAlign = "left";
+    }
+
+    /* ── Canvas: Skin Depth Ring ─────────────────────────────────── */
+    function drawSkinDepthRing(ctx) {
+      const W = 280, H = 160;
+      ctx.clearRect(0, 0, W, H);
+      const cx = W / 2, cy = H / 2 - 4, outerR = 52;
+
+      /* Outer reference ring */
+      ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, outerR + 14, 0, TWO_PI); ctx.stroke();
+
+      /* Conductor body */
+      ctx.fillStyle = "#0c1626";
+      ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, TWO_PI); ctx.fill();
+      ctx.strokeStyle = "rgba(159,176,204,0.3)"; ctx.lineWidth = 1.5; ctx.stroke();
+
+      if (globalInsulator) {
+        ctx.fillStyle = "rgba(217, 178, 111, 0.18)";
+        ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, TWO_PI); ctx.fill();
+        ctx.fillStyle = "rgba(217, 178, 111, 0.9)"; ctx.font = "bold 10px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("NON-CONDUCTING", cx, cy - 4);
+        ctx.fillText("(discharge gas)", cx, cy + 10);
+        ctx.textAlign = "left";
+        return;
+      }
+
+      /* Skin current ring.
+         Scale: globalSkinDepth is in meters; multiply by 1.1×10⁵ to map the
+         typical ~1–20 μm range to a 0.11–22 px ring thickness on the canvas. */
+      const visualThickness = Math.max(2, Math.min(outerR - 2, globalSkinDepth * 1.1e5));
+      ctx.strokeStyle = "rgba(112, 214, 255, 0.85)";
+      ctx.lineWidth = visualThickness;
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR - visualThickness / 2, 0, TWO_PI);
+      ctx.stroke();
+
+      /* Label */
+      ctx.fillStyle = "rgba(159, 176, 204, 0.75)"; ctx.font = "10px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("RF current concentrates at surface", cx, H - 8);
+      ctx.textAlign = "left";
+    }
+
+    /* ── Animation loop ──────────────────────────────────────────── */
+    function renderEngineLoop() {
+      animationTime++;
+      drawLCTank(document.getElementById("canvas-lc").getContext("2d"));
+      drawTransformer(document.getElementById("canvas-xformer").getContext("2d"));
+      drawWavelengthBar(document.getElementById("canvas-wave").getContext("2d"));
+      drawSkinDepthRing(document.getElementById("canvas-skin").getContext("2d"));
+      rafId = requestAnimationFrame(renderEngineLoop);
+    }
+
+    /* ── Init ────────────────────────────────────────────────────── */
+    window.onload = function () {
+      calculateAll();
+      renderEngineLoop();
+    };
+  </script>
+</body>
+</html>
